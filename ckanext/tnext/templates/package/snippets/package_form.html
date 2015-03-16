@@ -1,0 +1,46 @@
+{% ckan_extends %}
+
+{% block basic_fields %}
+
+  {% snippet 'package/snippets/package_basic_fields.html', data=data, errors=errors, licenses=c.licenses, groups_available=c.groups_available, metacache=false %}
+{% endblock %}
+
+
+
+
+
+  {% block form_actions %}
+
+    <div class="form-actions">
+      {% block disclaimer %}
+        <p class="action-info small">
+          {%- trans -%}
+          Important: By submitting content, you
+          agree to release your contributions under the Open Database
+          License.
+          {%- endtrans -%}
+        </p>
+        
+      {% endblock %}
+      {% block delete_button %}
+        {% if h.check_access('package_delete', {'id': data.id}) and not data.state == 'deleted' %}
+          {% set locale = h.dump_json({'confirm':'222','content': _('Are you sure you want to delete this dataset?')}) %}
+          <a class="btn btn-danger pull-left" href="{% url_for controller='package', action='delete', id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
+        {% endif %}
+      {% endblock %}
+      <button class="btn btn-primary" type="submit" name="save">{% block save_button_text %}{{ _('Next: Add Data') }}{% endblock %}</button>
+      {{ form.required_message() }}
+    </div>
+  
+
+  {% resource 'tnext_jscss/css/datepicker.css' %}
+  {% resource 'tnext_jscss/js/favorite.js' %}
+  {% resource 'tnext_jscss/js/bootstrap-datepicker.js' %}
+  
+  {% if form_style == 'edit' %}
+    {% resource 'tnext_jscss/js/package-require-all.js' %}
+  {% else %}
+    {% resource 'tnext_jscss/js/package-require-step1.js' %}  
+  {% endif %}
+
+  {% endblock %}

@@ -1,0 +1,142 @@
+{% import 'macros/form_tn.html' as form_tn %}
+
+{% ckan_extends %}
+
+{% set extras=data.extras %}
+
+{% block package_basic_fields_title %}
+
+  {{ form.input('title', id='field-title', label='資料集名稱', placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large'], attrs={'data-module': 'slug-preview-target'}, is_required=true) }}
+{% endblock %}
+
+{% block package_basic_fields_custom %}
+  {% for extra in extras if extra['key']=='資料集類型' %}
+    {{ form_tn.custom_meta('extras__0__', id='field-extras-0', key=extra.key, value=extra.value, is_required=true) }}
+  {% else %}
+    {{ form_tn.custom_meta('extras__0__', id='field-extras-0', key='資料集類型', value=' ', is_required=true) }}
+  {% endfor %}
+{% endblock %}
+
+{% block package_basic_fields_description %}
+  {{ form.markdown('notes', id='field-notes', label='資料集描述', placeholder=_('eg. Some useful notes about the data'), value=data.notes, error=errors.notes, is_required=true) }}
+{% endblock %}
+
+{% block package_basic_fields_license %}
+
+  {% for extra in extras if extra['key']=='資料量' %}
+    {{ form_tn.custom_meta('extras__1__', id='field-extras-1', key=extra.key, value=extra.value, is_required=true) }}
+  {% else %}
+    {{ form_tn.custom_meta('extras__1__', id='field-extras-1', key='資料量', value=' ', is_required=true) }}
+  {% endfor %}
+
+<div class="control-group">
+  {% set error = errors.license_id %}
+  <label class="control-label" for="field-license">授權方式</label>
+  <div class="controls">
+    <select id="field-license" name="license_id" data-module="autocomplete">
+      {% for license_desc, license_id in licenses|sort if license_desc  %}
+        <option value="{{ license_id }}" {% if data.get('license_id', 'notspecified') == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
+      {% endfor %}
+    </select>
+    {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
+    <span class="info-block info-inline">
+      <i class="icon-info-sign"></i>
+      {% trans %}
+        License definitions and additional information can be found
+        at <a href="http://opendefinition.org/licenses/">opendefinition.org</a>
+      {% endtrans %}
+    </span>
+  </div>
+</div>
+
+  {% for extra in extras if extra['key']=='授權說明網址' %}
+    {{ form_tn.custom_meta('extras__2__', id='field-extras-2', key=extra.key, value=extra.value, classes=['control-full'], is_required=true)}}
+  {% else %}
+    {{ form_tn.custom_meta('extras__2__', id='field-extras-2', key='授權說明網址', value=' ', is_required=true) }}
+  {% endfor %}
+
+  {% for extra in extras if extra['key']=='計費方式' %}
+    {{ form_tn.custom_meta('extras__3__', id='field-extras-3', key=extra.key, value=extra.value, is_required=true)}}
+  {% else %}
+    {{ form_tn.custom_meta('extras__3__', id='field-extras-3', key='計費方式', value=' ', is_required=true) }}
+  {% endfor %}
+{% endblock %}
+
+{% block package_basic_fields_tags %}
+  {% set tag_attrs = {'data-module': 'autocomplete', 'data-module-tags': '', 'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?'} %}
+  {{ form.input('tag_string', id='field-tags', label='標籤/關鍵字', placeholder=_('eg. economy, mental health, government'), value=data.tag_string, error=errors.tags, classes=['control-full'], attrs=tag_attrs) }}
+{% endblock %}
+
+
+{% block package_basic_fields_org %}
+  {# if we have a default group then this wants remembering #}
+  {% if data.group_id %}
+    <input type="hidden" name="groups__0__id" value="{{ data.group_id }}" />
+  {% endif %}
+
+  {% set dataset_is_draft = data.get('state', 'draft').startswith('draft') or data.get('state', 'none') ==  'none' %}
+  {% set dataset_has_organization = data.owner_org or data.group_id %}
+  {% set organizations_available = h.organizations_available('create_dataset') %}
+  {% set user_is_sysadmin = h.check_access('sysadmin') %}
+  {% set show_organizations_selector = organizations_available and (user_is_sysadmin or dataset_is_draft) %}
+  {% set show_visibility_selector = dataset_has_organization or (organizations_available and (user_is_sysadmin or dataset_is_draft)) %}
+
+  {% if show_organizations_selector and show_visibility_selector %}
+    <div data-module="dataset-visibility">
+  {% endif %}
+
+  {% if show_organizations_selector %}
+    {% set existing_org = data.owner_org or data.group_id %}
+    <div class="control-group">
+      <label for="field-organizations" class="control-label">提供機關</label>
+      <div class="controls">
+        <select id="field-organizations" name="owner_org" data-module="autocomplete">
+          <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('No organization') }}</option>
+          {% for organization in organizations_available %}
+            {# get out first org from users list only if there is not an existing org #}
+            {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and not data.id and organization.id == organizations_available[0].id) %}
+            <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ organization.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if show_visibility_selector %}
+    {% block package_metadata_fields_visibility %}
+      <div class="control-group" style="display:none;">
+        <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
+        <div class="controls">
+          <select id="field-private" name="private">
+            {% for option in [('True', _('Private')), ('False', _('Public'))] %}
+            <option value="{{ option[0] }}" {% if option[0] == data.private|trim %}selected="selected"{% endif %}>{{ option[1] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    {% endblock %}
+  {% endif %}
+
+  {% if show_organizations_selector and show_visibility_selector %}
+    </div>
+  {% endif %}
+
+
+  {% if data.id and h.check_access('package_delete', {'id': data.id}) and data.state != 'active' %}
+    <div class="control-group">
+      <label for="field-state" class="control-label">{{ _('State') }}</label>
+      <div class="controls">
+        <select id="field-state" name="state">
+          <option value="active" {% if data.get('state', 'none') == 'active' %} selected="selected" {% endif %}>{{ _('Active') }}</option>
+          <option value="deleted" {% if data.get('state', 'none') == 'deleted' %} selected="selected" {% endif %}>{{ _('Deleted') }}</option>
+        </select>
+      </div>
+    </div>
+  {% endif %}
+  
+  
+
+{% endblock %}
+
+
+
