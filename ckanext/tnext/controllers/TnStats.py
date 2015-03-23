@@ -115,3 +115,8 @@ GROUP BY content ORDER BY count DESC, content ASC; '''
     def guide(self):
         return base.render('home/guide.html')
 
+    def manual(self):
+        return base.render('home/manual.html')
+    
+    def faq(self):
+        return base.render('home/faq.html')

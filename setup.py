@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.1'
+version = '0.2'
 
 setup(
     name='ckanext-tnext',
@@ -11,8 +11,8 @@ setup(
     ''',
     classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords='',
-    author='joe',
-    author_email='joe@geo.com.tw',
+    author='tainan',
+    author_email='tainanod@gmail.com',
     url='',
     license='mit',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),

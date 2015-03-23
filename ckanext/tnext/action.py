@@ -3,6 +3,8 @@ import ckan.lib.helpers as h
 import ckan.logic as logic
 import ckan.model as model
 import collections
+import suggestentity as db
+
 from ckan.common import response, request, json
 
 def tnstats_dataset_count(self, id):
@@ -21,3 +23,13 @@ WHERE p.id = %s GROUP BY p.id ; '''
     result = [_ViewCount(*t) for t in engine.execute(sql, id).fetchall()]
     
     return result[0]
+
+
+''' SUGGEST '''
+def tnext_suggest_pagesShow(context, data_dict):
+    if db.suggest_table is None:
+        db.init_db(context['model'])
+    out = db.Suggest.suggests(is_enabled=True)
+    if out:
+        out = db.table_dictize(out, context)
+    return out

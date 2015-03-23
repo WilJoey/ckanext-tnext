@@ -1,10 +1,9 @@
-'''plugin.py
-
-'''
+import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import action as a
 
+log = logging.getLogger(__name__)
 
 def tnext_hots(*args):
     '''
@@ -21,7 +20,7 @@ def tnext_hots(*args):
     return query
 
 
-
+# Joe Tnext Plug setup init #
 class TnextPlugin(plugins.SingletonPlugin):
     '''tnod plugin.'''
     
@@ -78,12 +77,22 @@ class TnextPlugin(plugins.SingletonPlugin):
 
         map.connect('home_show','/show', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='show')
-
         map.connect('home_specification','/specification', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='specification')
-
         map.connect('home_guide','/guide', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='guide')
+        map.connect('home_faq','/faq', 
+            controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='faq')
+        map.connect('home_manual','/manual', 
+            controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='manual')
+
+        suggestCtor = 'ckanext.tnext.controllers.Suggest:SuggestController'
+        map.connect('suggest', '/suggest/{action}',
+            controller = suggestCtor,
+            action='index')
+        map.connect('suggest', '/suggest',
+            controller = suggestCtor,
+            action='index')
 
     	return map
 
@@ -93,7 +102,8 @@ class TnextPlugin(plugins.SingletonPlugin):
 
     def get_actions(self):
         return {
-            'tnstats_dataset_count': a.tnstats_dataset_count
+            'tnstats_dataset_count': a.tnstats_dataset_count,
+            'tnext_suggest_pagesShow': a.tnext_suggest_pagesShow
         }
 
     def get_helpers(self):
