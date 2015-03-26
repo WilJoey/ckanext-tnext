@@ -27,9 +27,30 @@ WHERE p.id = %s GROUP BY p.id ; '''
 
 ''' SUGGEST '''
 def tnext_suggest_pagesShow(context, data_dict):
+    search = {}
+    search['is_enabled'] = True
+    #search['limit'] = 1
+    #search['id']= "9dcfef91-e960-4778-b94e-5d390ceb52ab"
+
     if db.suggest_table is None:
         db.init_db(context['model'])
-    out = db.Suggest.suggests(is_enabled=True)
+    out = db.Suggest.suggests(data_dict['limit'],data_dict['offset'])
+    '''
+    content, suggester, suggest_name, suggest_columns, 
+            created, upper, user_id
+    '''
+    '''
     if out:
         out = db.table_dictize(out, context)
     return out
+    '''
+    return [{
+        'id' : sg.id,
+        'title': sg.title,
+        'suggester': sg.suggester,
+        'suggest_name' : sg.suggest_name,
+        'suggest_columns': sg.suggest_columns,
+        'views': sg.views,
+        'created': sg.created
+    } for sg in out]
+    

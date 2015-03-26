@@ -85,7 +85,8 @@ class TnextPlugin(plugins.SingletonPlugin):
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='faq')
         map.connect('home_manual','/manual', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='manual')
-
+  
+        '''
         suggestCtor = 'ckanext.tnext.controllers.Suggest:SuggestController'
         map.connect('suggest', '/suggest/{action}',
             controller = suggestCtor,
@@ -93,6 +94,7 @@ class TnextPlugin(plugins.SingletonPlugin):
         map.connect('suggest', '/suggest',
             controller = suggestCtor,
             action='index')
+        '''
 
     	return map
 

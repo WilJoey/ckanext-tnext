@@ -22,9 +22,29 @@ def init_db(model):
             return query.filter_by(**kw).firset()
 
         @classmethod
-        def suggests(cls, **kw):
+        def suggests(cls, limit, offset):
             query = model.Session.query(cls).autoflush(False)
-            query = query.filter_by(**kw)
+            search = {}
+            search['is_enabled'] = True
+            query = query.filter_by(is_enabled=True)
+            query = query.order_by(sa.desc(cls.created))
+            #query = query.limit(limit)
+            #query = query.offset(offset)
+            '''
+            suggest_list = []
+            for sg in query.all():
+                aps = {}
+                aps['id'] = sg.id
+                aps['title'] = sg.title
+                aps['suggester'] = sg.suggester
+                aps['dsname'] = sg.suggest_name
+                aps['columns'] = sg.suggest_columns
+                aps['views'] = sg.views
+                aps['created'] = sg.created
+                suggest_list.append(aps)
+               
+            return suggest_list
+            '''
             return query.all()
 
     global Suggest
@@ -42,7 +62,9 @@ CREATE TABLE IF NOT EXISTS ckanext_suggest
     created timestamp without time zone,
     upper text,
     user_id text NOT NULL,
-    is_enabled boolean NOT NULL DEFAULT true
+    is_enabled boolean NOT NULL DEFAULT true,
+    views integer NOT NULL DEFAULT 1,
+    CONSTRAINT pk_ckanext_suggest PRIMARY KEY (id )
 );
 '''
     conn =  model.Session.connection()
@@ -65,6 +87,7 @@ CREATE TABLE IF NOT EXISTS ckanext_suggest
         sa.Column('upper', types.UnicodeText, default=u''),
         sa.Column('user_id', types.UnicodeText, default=u''),
         sa.Column('is_enabled', types.Boolean, default=True),
+        sa.Column('views', types.Integer, default=1)
     )
 
     model.meta.mapper(Suggest, suggest_table)
@@ -72,6 +95,9 @@ CREATE TABLE IF NOT EXISTS ckanext_suggest
 def table_dictize(obj, context, **kw):
     '''Get any model object and represent it as a dict'''
     result_dict = {}
+
+    #model = context["model"]
+    #session = model.Session
 
     if isinstance(obj, sa.engine.base.RowProxy):
         fields = obj.keys()
@@ -100,11 +126,11 @@ def table_dictize(obj, context, **kw):
         else:
             result_dict[name] = unicode(value)
 
-    result_dict.update(kw)
+    #result_dict.update(kw)
 
     ##HACK For optimisation to get metadata_modified created faster.
-    #context['metadata_modified'] = max(result_dict.get('revision_timestamp', ''),
-    #                                   context.get('metadata_modified', ''))
+    context['metadata_modified'] = max(result_dict.get('revision_timestamp', ''),
+                                       context.get('metadata_modified', ''))
 
     return result_dict
 
