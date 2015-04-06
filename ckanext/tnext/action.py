@@ -1,15 +1,37 @@
-import ckan.plugins as p
+import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckan.logic as logic
 import ckan.model as model
 import collections
-import suggestentity as db
+import dbsuggest as db
+import constants
+import datetime
+import cgi
+import logging
+import validator
 
 from ckan.common import response, request, json
 
-def tnstats_dataset_count(self, id):
-    c = p.toolkit.c
+c = plugins.toolkit.c
+log = logging.getLogger(__name__)
+tk = plugins.toolkit
 
+# Avoid user_show lag
+USERS_CACHE = {}
+
+def _get_user(user_id):
+    try:
+        if user_id in USERS_CACHE:
+            return USERS_CACHE[user_id]
+        else:
+            user = tk.get_action('user_show')({'ignore_auth': True}, {'id': user_id})
+            USERS_CACHE[user_id] = user
+            return user
+    except Exception as e:
+        log.warn(e)
+
+
+def tnstats_dataset_count(self, id):
     _ViewCount = collections.namedtuple("ViewCount", "views downloads")
 
     engine = model.meta.engine
@@ -25,32 +47,191 @@ WHERE p.id = %s GROUP BY p.id ; '''
     return result[0]
 
 
-''' SUGGEST '''
-def tnext_suggest_pagesShow(context, data_dict):
-    search = {}
-    search['is_enabled'] = True
-    #search['limit'] = 1
-    #search['id']= "9dcfef91-e960-4778-b94e-5d390ceb52ab"
+def suggest_index(context, data_dict):
+    model = context['model']
 
-    if db.suggest_table is None:
-        db.init_db(context['model'])
-    out = db.Suggest.suggests(data_dict['limit'],data_dict['offset'])
-    '''
-    content, suggester, suggest_name, suggest_columns, 
-            created, upper, user_id
-    '''
-    '''
-    if out:
-        out = db.table_dictize(out, context)
-    return out
-    '''
-    return [{
-        'id' : sg.id,
-        'title': sg.title,
-        'suggester': sg.suggester,
-        'suggest_name' : sg.suggest_name,
-        'suggest_columns': sg.suggest_columns,
-        'views': sg.views,
-        'created': sg.created
-    } for sg in out]
+    # Init the data base
+    db.init_db(model)
+
+    # Check access
+    tk.check_access(constants.SUGGEST_INDEX, context, data_dict)
+    params = {}
+
+    # Filter by state
+    closed = data_dict.get('closed', None)
+    if closed is not None:
+        params['closed'] = closed
+
+    # Call the function
+    db_suggests = db.Suggest.get_ordered_by_date(**params)
+
+    # Dictize the results
+    offset = data_dict.get('offset', 0)
+    limit = data_dict.get('limit', constants.SUGGESTS_PER_PAGE)
+    suggests = []
+    for data_req in db_suggests[offset:offset + limit]:
+        suggests.append(_dictize_suggest(data_req))
+
+    # Facets
+    CLOSED = 'Closed'
+    OPEN = 'Open'
+    no_processed_state_facet = {CLOSED:0 , OPEN: 0}
+    for data_req in db_suggests:
+        no_processed_state_facet[CLOSED if data_req.closed else OPEN] +=1
+
+    state_facet = []
+    for state in no_processed_state_facet:
+        if no_processed_state_facet[state]:
+            state_facet.append({
+                'name': state.lower(),
+                'display_name': state,
+                'count': no_processed_state_facet[state]
+            })
+
+    result = {
+        'count': len(db_suggests),
+        'facets': {},
+        'result': suggests
+    }
+
+    if state_facet:
+        result['facets']['state'] = {'items': state_facet}
+
+    return result
+
+def suggest_create(context, data_dict):
+    model = context['model']
+    session = context['session']
+
+    # Init the data base
+    db.init_db(model)
+
+    # Check access
+    tk.check_access(constants.SUGGEST_CREATE, context, data_dict)
+
+    # Validate data
+    validator.validate_suggest(context, data_dict)
+
+    # Store the data
+    data_req = db.Suggest()
+    _undictize_suggest_basic(data_req, data_dict)
+
+    data_req.open_time = datetime.datetime.now()
+
+    session.add(data_req)
+    session.commit()
+
+    return _dictize_suggest(data_req)
+
+def _dictize_suggest(suggest):
+    # Transform time
+    open_time = str(suggest.open_time)
+    # Close time can be None and the transformation is only needed when the
+    # fields contains a valid date
+    close_time = suggest.close_time
+    close_time = str(close_time) if close_time else close_time
+
+    # Convert the data request into a dict
+    data_dict = {
+        'id': suggest.id,
+        #'user_name': suggest.user_name,
+        'title': suggest.title,
+        'description': suggest.description,
+        'user_id': suggest.user_id,
+        'dataset_name': suggest.dataset_name,
+        'suggest_columns': suggest.suggest_columns,
+
+        'open_time': open_time,
+        
+        'close_time': close_time,
+        'closed': suggest.closed,
+        'views': suggest.views
+    }
+    return data_dict
+
+def _undictize_suggest_basic(suggest, data_dict):
+    suggest.title = data_dict['title']
+    suggest.description = data_dict['description']
+    suggest.user_id = data_dict['user_id']
+    suggest.dataset_name = data_dict['dataset_name']
+    suggest.suggest_columns = data_dict['suggest_columns']
     
+def suggest_show(context, data_dict):
+    model = context['model']
+    suggest_id = data_dict.get('id', '')
+
+    if not suggest_id:
+        raise tk.ValidationError('Data Request ID has not been included')
+
+    # Init the data base
+    db.init_db(model)
+
+    # Check access
+    tk.check_access(constants.SUGGEST_SHOW, context, data_dict)
+
+    # Get the data request
+    result = db.Suggest.get(id=suggest_id)
+    if not result:
+        raise tk.ObjectNotFound('Data Request %s not found in the data base' % suggest_id)
+
+    data_req = result[0]
+    data_dict = _dictize_suggest(data_req)
+
+    # Get comments
+    comments_db = db.Comment.get_ordered_by_date(suggest_id=data_dict['id'])
+
+    comments_list = []
+    for comment in comments_db:
+        comments_list.append(_dictize_comment(comment))
+
+    data_dict['comments'] = comments_list
+    return data_dict    
+    
+
+
+
+def suggest_comment(context, data_dict):
+    model = context['model']
+    session = context['session']
+    suggest_id = data_dict.get('suggest_id', '')
+
+    # Check id
+    if not suggest_id:
+        raise tk.ValidationError(['Data Request ID has not been included'])
+
+    # Init the data base
+    db.init_db(model)
+
+    # Check access
+    tk.check_access(constants.SUGGEST_COMMENT, context, data_dict)
+
+    # Validate comment
+    validator.validate_comment(context, data_dict)
+
+    # Store the data
+    comment = db.Comment()
+    _undictize_comment_basic(comment, data_dict)
+    comment.user_id = context['auth_user_obj'].id
+    comment.time = datetime.datetime.now()
+
+    session.add(comment)
+    session.commit()
+
+    return _dictize_comment(comment)
+
+def _undictize_comment_basic(comment, data_dict):
+    comment.comment = cgi.escape(data_dict.get('comment', ''))
+    comment.suggest_id = data_dict.get('suggest_id', '')
+
+
+def _dictize_comment(comment):
+
+    return {
+        'id': comment.id,
+        'suggest_id': comment.suggest_id,
+        'user_id': comment.user_id,
+        'comment': comment.comment,
+        'user': _get_user(comment.user_id),
+        'time': str(comment.time)
+        
+    }

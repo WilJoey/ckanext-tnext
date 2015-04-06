@@ -1,6 +1,17 @@
 {% ckan_extends %}
 
-    {% block resource_item_explore_links %}
+{% block resource_item_explore %}
+  {% if not url_is_edit %}
+  <div class="dropdown btn-group">
+    <a href="#" class="geotipst btn btn-primary dropdown-toggle" data-toggle="dropdown"
+        title="提醒您：點擊探索進行資料預覽">
+      <i class="icon-share-alt"></i>
+      {{ _('Explore') }}
+      <span class="caret"></span>
+      {% resource 'tnext_jscss/js/geo-tips.js' %}
+    </a>
+    <ul class="dropdown-menu">
+      {% block resource_item_explore_links %}
       <li>
         <a href="{{ url }}">
           {% if res.can_be_previewed %}
@@ -35,3 +46,8 @@
       </li>
       {% endif %}
     {% endblock %}
+    </ul>
+  </div>
+  {% endif %}
+{% endblock %}
+

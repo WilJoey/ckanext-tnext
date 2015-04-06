@@ -2,6 +2,8 @@ import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import action as a
+import constants
+import auth
 
 log = logging.getLogger(__name__)
 
@@ -29,15 +31,46 @@ class TnextPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IPackageController, inherit=True)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.ITemplateHelpers, inherit=True)
+    plugins.implements(plugins.IAuthFunctions)
 
-    '''
-    plugins.implements(plugins.IConfigurer, inherit=True)
-    plugins.implements(plugins.ITemplateHelpers, inherit=True)
-    plugins.implements(plugins.IConfigurable, inherit=True)
-    plugins.implements(plugins.IRoutes, inherit=True)
-    plugins.implements(plugins.IActions, inherit=True)
-    '''
-    
+
+    ######################################################################
+    ############################## IACTIONS ##############################
+    ######################################################################
+    def get_actions(self):
+        return {
+            'tnstats_dataset_count': a.tnstats_dataset_count,
+
+            constants.SUGGEST_INDEX: a.suggest_index,
+            constants.SUGGEST_CREATE: a.suggest_create,
+            constants.SUGGEST_SHOW: a.suggest_show,
+            # constants.SUGGEST_UPDATE: abc.suggest_update,
+            # constants.SUGGEST_DELETE: a.suggest_delete,
+            # constants.SUGGEST_CLOSE: a.suggest_close,
+            constants.SUGGEST_COMMENT: a.suggest_comment,
+            # constants.SUGGEST_COMMENT_LIST: a.suggest_comment_list,
+            # constants.SUGGEST_COMMENT_SHOW: a.suggest_comment_show,
+            # constants.SUGGEST_COMMENT_UPDATE: a.suggest_comment_update,
+            # constants.SUGGEST_COMMENT_DELETE: a.suggest_comment_delete
+        }
+
+    ######################################################################
+    ########################### AUTH FUNCTIONS ###########################
+    ######################################################################
+    def get_auth_functions(self):
+        return {
+            constants.SUGGEST_INDEX: auth.suggest_index,
+            constants.SUGGEST_CREATE: auth.suggest_create,
+            constants.SUGGEST_SHOW: auth.suggest_show,
+            # constants.SUGGEST_UPDATE: auth.suggest_update,
+            # constants.SUGGEST_DELETE: auth.suggest_delete,
+            # constants.SUGGEST_CLOSE: auth.suggest_close,
+            constants.SUGGEST_COMMENT: auth.suggest_comment,
+            # constants.SUGGEST_COMMENT_LIST: auth.suggest_comment_list,
+            # constants.SUGGEST_COMMENT_SHOW: auth.suggest_comment_show,
+            constants.SUGGEST_COMMENT_UPDATE: auth.suggest_comment_update,
+            # constants.SUGGEST_COMMENT_DELETE: auth.suggest_comment_delete
+        }
 
     def update_config(self, config):
         toolkit.add_template_directory(config, 'templates')
@@ -86,27 +119,29 @@ class TnextPlugin(plugins.SingletonPlugin):
         map.connect('home_manual','/manual', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='manual')
   
-        '''
-        suggestCtor = 'ckanext.tnext.controllers.Suggest:SuggestController'
-        map.connect('suggest', '/suggest/{action}',
-            controller = suggestCtor,
-            action='index')
-        map.connect('suggest', '/suggest',
-            controller = suggestCtor,
-            action='index')
-        '''
+        ## suggests ##
+        # Data Requests index
+        map.connect('suggests_index', "/suggest",
+                  controller='ckanext.tnext.controllers.Suggest:SuggestsController',
+                  action='index', conditions=dict(method=['GET']))
+        # Create a Data Request
+        map.connect('/%s/new' % constants.SUGGESTS_MAIN_PATH,
+                  controller='ckanext.tnext.controllers.Suggest:SuggestsController',
+                  action='new', conditions=dict(method=['GET', 'POST']))
+        # Show a Data Request
+        map.connect('suggest_show', '/%s/{id}' % constants.SUGGESTS_MAIN_PATH,
+                  controller='ckanext.tnext.controllers.Suggest:SuggestsController',
+                  action='show', conditions=dict(method=['GET']), ckan_icon='question-sign')
+       # Comment, update and view comments (of) a Data Request
+        map.connect('suggest_comment', '/%s/{id}/comment' % constants.SUGGESTS_MAIN_PATH,
+                  controller='ckanext.tnext.controllers.Suggest:SuggestsController',
+                  action='suggest_comment', conditions=dict(method=[ 'POST']), ckan_icon='comment')
 
     	return map
 
     def before_map(self, map):
         
         return map
-
-    def get_actions(self):
-        return {
-            'tnstats_dataset_count': a.tnstats_dataset_count,
-            'tnext_suggest_pagesShow': a.tnext_suggest_pagesShow
-        }
 
     def get_helpers(self):
         return {
