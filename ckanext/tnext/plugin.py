@@ -44,6 +44,7 @@ class TnextPlugin(plugins.SingletonPlugin):
             constants.SUGGEST_INDEX: a.suggest_index,
             constants.SUGGEST_CREATE: a.suggest_create,
             constants.SUGGEST_SHOW: a.suggest_show,
+            constants.SUGGEST_VIEWS: a.suggest_views,
             # constants.SUGGEST_UPDATE: abc.suggest_update,
             # constants.SUGGEST_DELETE: a.suggest_delete,
             # constants.SUGGEST_CLOSE: a.suggest_close,
@@ -132,10 +133,13 @@ class TnextPlugin(plugins.SingletonPlugin):
         map.connect('suggest_show', '/%s/{id}' % constants.SUGGESTS_MAIN_PATH,
                   controller='ckanext.tnext.controllers.Suggest:SuggestsController',
                   action='show', conditions=dict(method=['GET']), ckan_icon='question-sign')
+        map.connect('suggest_view', '/%s/view/{id}' % constants.SUGGESTS_MAIN_PATH,
+                  controller='ckanext.tnext.controllers.Suggest:SuggestsController',
+                  action='views', conditions=dict(method=['POST']), ckan_icon='question-sign')
        # Comment, update and view comments (of) a Data Request
         map.connect('suggest_comment', '/%s/{id}/comment' % constants.SUGGESTS_MAIN_PATH,
                   controller='ckanext.tnext.controllers.Suggest:SuggestsController',
-                  action='suggest_comment', conditions=dict(method=[ 'POST']), ckan_icon='comment')
+                  action='suggest_comment', conditions=dict(method=['GET', 'POST']), ckan_icon='comment')
 
     	return map
 

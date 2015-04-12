@@ -1,21 +1,22 @@
-{% extends "page.html" %}
+{% extends "suggest/base.html" %}
 
-{% block subtitle %}{{ _('Create Data Request') }}{% endblock %}
+{% block subtitle %}{{ '新增資料建議' }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li>{% link_for _('Data Requests'), controller='ckanext.tnext.controllers.Suggest:SuggestsController', action='index' %}</li>
-  <li class="active"><a href="">{{ _('Create Data Request') }}</a></li>
+  <li>{% link_for '資料建議', controller='ckanext.tnext.controllers.Suggest:SuggestsController', action='index' %}</li>
+  <li class="active">{{ '新增資料建議' }}</li>
 {% endblock %}
 
 {% block primary_content_inner %}
-  <h1 class="{% block page_heading_class %}page-heading{% endblock %}">{% block page_heading %}{{ _('Create Data Request') }}{% endblock %}</h1>
+<div class="module-content">
+  <h1 class="{% block page_heading_class %}page-heading{% endblock %}">{% block page_heading %}{{ '新增資料建議' }}{% endblock %}</h1>
   {% snippet "suggest/snippets/new_form.html", data=c.suggest, errors=c.errors, errors_summary=c.errors_summary, offering=c.offering %}
+  </div>
+
 {% endblock %}
 
 {% block secondary_content_additional_info %}
-  <p>
-    To create a data request, fill the form and specify a title and a description for your request. Please, be as clear as you can in order to ease the task of accomplishing your request. You can also specify an organization if your data request is closely related with it. 
-  </p>
+
 {% endblock %}
 
 {% block page_header %}{% endblock %}

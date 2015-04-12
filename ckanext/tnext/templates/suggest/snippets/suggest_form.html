@@ -1,7 +1,12 @@
 {% import 'macros/form.html' as form %}
 
 {% set title = data.get('title', '') %}
+{% set user_id = data.get('user_id', '') %}
 {% set description = data.get('description', '') %}
+{% set dataset_name = data.get('dataset_name', '') %}
+{% set suggest_columns = data.get('suggest_columns', '') %}
+
+
 
 {# This provides a full page that renders a form for publishing a dataset. It can
 then itself be extended to add/remove blocks of functionality. #}
@@ -14,7 +19,7 @@ then itself be extended to add/remove blocks of functionality. #}
   {% endblock %}
 
   {% block offering_title %}
-    {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. Data Request Name'), value=title, error=errors['Title'], classes=['control-full', 'control-large'], is_required=true) }}
+    {{ form.input('title', id='field-title', label=_('Title'), placeholder='', value=title, error=errors['Title'], classes=['control-full', 'control-large'], is_required=true) }}
   {% endblock %}
 
   {% block offering_dataset_name %}
@@ -26,7 +31,7 @@ then itself be extended to add/remove blocks of functionality. #}
   {% endblock %}
 
   {% block offering_description %}
-    {{ form.markdown('description', id='field-description', label=_('Description'), placeholder=_('eg. Data Request description'), value=description, error=errors['Description']) }}
+    {{ form.markdown('description', id='field-description', label=_('Description'), placeholder='', value=description, error=errors['Description']) }}
   {% endblock %}
 
   {% block form_actions %}

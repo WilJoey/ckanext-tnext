@@ -1,7 +1,7 @@
 <div class="well">
 <h2 class="page-heading">
   {% block page_heading %}
-    {{ _('Current Discussion') }}
+    {{ '回應清單' }}
   {% endblock %}
 </h2>
 
@@ -13,7 +13,7 @@
   </ul>
 {% else %}
   <p class="empty">
-    {{ _('This data request has not been commented yet') }}
+    {{ '目前尚無任何的回應!' }}
   </p>
 {% endif %}
 </div>

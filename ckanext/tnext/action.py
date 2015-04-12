@@ -61,7 +61,7 @@ def suggest_index(context, data_dict):
     closed = data_dict.get('closed', None)
     if closed is not None:
         params['closed'] = closed
-
+    
     # Call the function
     db_suggests = db.Suggest.get_ordered_by_date(**params)
 
@@ -70,23 +70,9 @@ def suggest_index(context, data_dict):
     limit = data_dict.get('limit', constants.SUGGESTS_PER_PAGE)
     suggests = []
     for data_req in db_suggests[offset:offset + limit]:
-        suggests.append(_dictize_suggest(data_req))
-
-    # Facets
-    CLOSED = 'Closed'
-    OPEN = 'Open'
-    no_processed_state_facet = {CLOSED:0 , OPEN: 0}
-    for data_req in db_suggests:
-        no_processed_state_facet[CLOSED if data_req.closed else OPEN] +=1
-
-    state_facet = []
-    for state in no_processed_state_facet:
-        if no_processed_state_facet[state]:
-            state_facet.append({
-                'name': state.lower(),
-                'display_name': state,
-                'count': no_processed_state_facet[state]
-            })
+        suggests.append(_dictize_suggest_list(data_req))
+    
+    
 
     result = {
         'count': len(db_suggests),
@@ -94,10 +80,32 @@ def suggest_index(context, data_dict):
         'result': suggests
     }
 
-    if state_facet:
-        result['facets']['state'] = {'items': state_facet}
-
     return result
+
+def _dictize_suggest_list(suggest):
+    # Transform time
+    open_time = str(suggest.open_time)
+    close_time = suggest.close_time
+    close_time = str(close_time) if close_time else close_time
+
+    data_dict = {
+        'id': suggest.id,
+        'title': suggest.title,
+        'user_id': _star_id(suggest.user_id),
+        'open_time': open_time,
+        'views': suggest.views,
+        'comments' : db.Comment.get_count_by_suggest(suggest_id=suggest.id)
+    }
+    return data_dict
+
+def _star_id(uid):
+    if len(uid) < 3:
+        return '**'
+    ap = '*'
+    for i in uid[1:-1]:
+        ap += i
+    ap += '*'
+    return ap
 
 def suggest_create(context, data_dict):
     model = context['model']
@@ -137,7 +145,7 @@ def _dictize_suggest(suggest):
         #'user_name': suggest.user_name,
         'title': suggest.title,
         'description': suggest.description,
-        'user_id': suggest.user_id,
+        'user_id': _star_id(suggest.user_id),
         'dataset_name': suggest.dataset_name,
         'suggest_columns': suggest.suggest_columns,
 
@@ -148,6 +156,8 @@ def _dictize_suggest(suggest):
         'views': suggest.views
     }
     return data_dict
+
+
 
 def _undictize_suggest_basic(suggest, data_dict):
     suggest.title = data_dict['title']
@@ -174,7 +184,10 @@ def suggest_show(context, data_dict):
     if not result:
         raise tk.ObjectNotFound('Data Request %s not found in the data base' % suggest_id)
 
+    
+
     data_req = result[0]
+
     data_dict = _dictize_suggest(data_req)
 
     # Get comments
@@ -187,7 +200,10 @@ def suggest_show(context, data_dict):
     data_dict['comments'] = comments_list
     return data_dict    
     
-
+def suggest_views(context, data_dict):
+    model = context['model']
+    suggest_id = data_dict.get('id', '')
+    db.Suggest.views_plus(suggest_id)
 
 
 def suggest_comment(context, data_dict):

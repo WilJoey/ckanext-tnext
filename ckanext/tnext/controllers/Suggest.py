@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 
 import ckan.lib.base as base
@@ -71,10 +72,10 @@ class SuggestsController(base.BaseController):
             offset = (page - 1) * constants.SUGGESTS_PER_PAGE
             data_dict = {'offset': offset, 'limit': limit}
 
-            state = request.GET.get('state', None)
-            if state:
-                data_dict['closed'] = True if state == 'closed' else False
-
+            # state = request.GET.get('state', None)
+            # if state:
+            #     data_dict['closed'] = True if state == 'closed' else False
+            data_dict['closed'] = False
 
             tk.check_access(constants.SUGGEST_INDEX, context, data_dict)
             suggests_list = tk.get_action(constants.SUGGEST_INDEX)(context, data_dict)
@@ -162,7 +163,7 @@ class SuggestsController(base.BaseController):
         context = self._get_context()
 
         try:
-            tk.check_access(constants.SUGGEST_SHOW, context, data_dict)
+            #tk.check_access(constants.SUGGEST_SHOW, context, data_dict)
             c.suggest = tk.get_action(constants.SUGGEST_SHOW)(context, data_dict)
 
             context_ignore_auth = context.copy()
@@ -176,7 +177,19 @@ class SuggestsController(base.BaseController):
             tk.abort(403, tk._('You are not authorized to view the Data Request %s'
                                % id))
 
+    def views(self, id):
+        data_dict = {'id': id}
+        context = self._get_context()
+        #if request.POST:
+        tk.get_action('suggest_views')(context, data_dict)
+        return 'abc'
+        
+        
+
     def suggest_comment(self, id):
+        if request.GET:
+            return self.show(id)
+
         try:
             context = self._get_context()
             #data_dict_comment_list = {'suggest_id': id}

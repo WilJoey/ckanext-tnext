@@ -1,15 +1,16 @@
 {% extends "suggest/base.html" %}
 
-{% block title %}Data Request {{c.suggest.get('title', '')}}{% endblock %}
+{% block title %}資料建議 - {{c.suggest.get('title', '')}}{% endblock %}
 
 {% set datarequest_id = c.suggest.get('id') %}
 
 {% block breadcrumb_content %}
-  <li>{% link_for _('Data Requests'), controller='ckanext.tnext.controllers.Suggest:SuggestsController', action='index' %}</li>
-  <li class="active"><a href="">{{ c.suggest.get('title') }}</a></li>
+  <li>{% link_for '資料建議', controller='ckanext.tnext.controllers.Suggest:SuggestsController', action='index' %}</li>
+  <li class="active">{{ c.suggest.get('title') }}</li>
 {% endblock %}
 
-{% block primary_content_inner %}
+{% block primary_content %}
+    {#
     {% if c.suggest.closed %}
       <span class="uppercase label label-closed pull-right">
         <i class="icon-lock"></i>
@@ -21,6 +22,8 @@
         {{ _('Open') }}
       </span>
     {% endif %}
+    #}
+<div class="module-content">
 
   <h1 class="text-center {% block page_heading_class %}page-heading{% endblock %}">
     {% block page_heading %}
@@ -36,14 +39,14 @@
         <dt>建議人</dt>
         <dd><p>{{ c.suggest.get('user_id') }}</p></dd>
         <dt>建議資料集名稱</dt>
-        <dd><p>{{ c.suggest.get('dataset_name') }}</p></dd>
+        <dd><p>{{ c.suggest.get('dataset_name', '&nbsp;') }}</p></dd>
         <dt>建議開放的欄位</dt>
-        <dd><p>{{ c.suggest.get('suggest_columns') }}</p></dd>
+        <dd><p>{{ c.suggest.get('suggest_columns', '&nbsp;') }}</p></dd>
         <dt>{{_('Description')}}</dt>
         <dd>
           {% if c.suggest.get('description') %}
             <p class="notes embedded-content">
-              {{ h.render_markdown(c.suggest.get('description')) }}
+              {{ h.render_markdown(c.suggest.get('description', '&nbsp;')) }}
             </p>
           {% endif %}
         </dd>
@@ -64,11 +67,15 @@
     {% endblock %}
 
 
-    <div class="well alert">
-      {{ h.snippet('suggest/snippets/comment_form.html', suggest_id=c.suggest.id) }}
-    </div>
-    
-<p>&nbsp;</p>
+    {% block primary_comments_form %}
+      {% if h.check_access('suggest_comment') %}
+        <div class="well alert">
+          {{ h.snippet('suggest/snippets/comment_form.html', suggest_id=c.suggest.id) }}
+        </div>
+      {% endif %}
+    {% endblock %}
+  <p>&nbsp;</p>
+
   {% endblock %}
 
   {% block suggest_disqus %}
@@ -81,5 +88,5 @@
   {#% block datarequest_additional_info %}
     {% snippet "suggest/snippets/additional_info.html", datarequest=c.datarequest %}
   {% endblock %#}
-
+</div>
 {% endblock %}

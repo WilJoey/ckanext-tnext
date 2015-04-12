@@ -1,26 +1,19 @@
-{% set title= _('No Data Requests found') if suggest_count == 0 else '%s datarequest found' % suggest_count %}
-
-<h2>{{ title }}</h2>
+{% set title= '目前尚無任何資料建議!' if suggest_count == 0 else '目前計有【%s】筆資料建議' % suggest_count %}
 
 {% block datarequest_search_results_list %}
   {% if suggests %}
-  {#
-    <ul class="dataset-list unstyled">
-      {% for suggest in suggests %}
-        {{ h.snippet('suggest/snippets/suggest_item.html', suggest=suggest, facet_titles=facet_titles) }}
-      {% endfor %}
-    </ul>
-    #}
+
      <section id="stats-most-edited" class="module-content tab-content active">
       
       <table class="table table-striped table-bordered table-hover">
-        <caption>caption</caption>
+        <caption><h2>{{ title }}</h2></caption>
         <thead>
           <tr>
             <th>日期</th>
             <th>標題</th>
             <th>建議人</th>
             <th>瀏覽次數</th>
+            <th>回應數</th>
           </tr>
         </thead>
         <tbody>

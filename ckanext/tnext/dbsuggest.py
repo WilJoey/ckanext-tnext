@@ -2,7 +2,8 @@ import constants
 import sqlalchemy as sa
 import uuid
 
-from sqlalchemy import func
+from sqlalchemy import func, ForeignKey
+from sqlalchemy.orm import relationship, backref
 
 Suggest = None
 Comment = None
@@ -24,19 +25,35 @@ def init_db(model):
             def get(cls, **kw):
                 '''Finds all the instances required.'''
                 query = model.Session.query(cls).autoflush(False)
+                
                 return query.filter_by(**kw).all()
+
+            @classmethod
+            def views_plus(cls, id):
+                model.Session.execute("UPDATE suggests SET views=views+1 WHERE id=:id", {'id': id})
+                model.Session.commit()
+                return False
 
             @classmethod
             def suggest_exists(cls, title):
                 '''Returns true if there is a Data Request with the same title (case insensitive)'''
                 query = model.Session.query(cls).autoflush(False)
+
                 return query.filter(func.lower(cls.title) == func.lower(title)).first() is not None
 
             @classmethod
             def get_ordered_by_date(cls, **kw):
-                '''Personalized query'''
+                sql = "SELECT id, user_id, title, open_time, views, (select count(*) from suggests_comments where suggest_id = id) as comments FROM  suggests WHERE closed=False ORDER BY open_time DESC"
+                #query = model.Session.query(cls).autoflush(False)
                 query = model.Session.query(cls).autoflush(False)
                 return query.filter_by(**kw).order_by(cls.open_time.desc()).all()
+
+
+
+            # @classmethod
+            # def query_by_sql(cls, **kw):
+            #     sql = "SELECT id, user_id, title, open_time, views, (select count(*) from suggests_comments where suggest_id = id) as comments FROM  suggests WHERE closed=False ORDER BY open_time DESC"
+            #     return None
 
         Suggest = _Suggest
 
@@ -53,6 +70,7 @@ def init_db(model):
             sa.Column('close_time', sa.types.DateTime, primary_key=False, default=None),
             sa.Column('closed', sa.types.Boolean, primary_key=False, default=False)
         )
+        #suggests_table.comments = relationship('suggests_comments', backref='suggests')
 
         # Create the table only if it does not exist
         suggests_table.create(checkfirst=True)
@@ -67,6 +85,7 @@ def init_db(model):
             def get(cls, **kw):
                 '''Finds all the instances required.'''
                 query = model.Session.query(cls).autoflush(False)
+                
                 return query.filter_by(**kw).all()
 
             @classmethod
@@ -74,6 +93,11 @@ def init_db(model):
                 '''Personalized query'''
                 query = model.Session.query(cls).autoflush(False)
                 return query.filter_by(**kw).order_by(cls.time.desc()).all()
+
+            @classmethod
+            def get_count_by_suggest(cls, **kw):
+                query = model.Session.query(cls).autoflush(False)
+                return query.filter_by(**kw).count()
 
         Comment = _Comment
 

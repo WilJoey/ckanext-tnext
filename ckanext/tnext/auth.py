@@ -5,6 +5,7 @@ from ckan.plugins import toolkit as tk
 def suggest_index(context, data_dict):
     return {'success': True}
 
+@tk.auth_allow_anonymous_access
 def suggest_create(context, data_dict):
     return {'success': True}
 

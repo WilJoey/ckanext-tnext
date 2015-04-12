@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import constants
 import ckan.plugins.toolkit as tk
 import dbsuggest as db
@@ -25,7 +27,8 @@ def validate_suggest(context, request_data):
 
     if 'Title' not in errors and not avoid_existing_title_check:
         if db.Suggest.suggest_exists(request_data['title']):
-            errors['Title'] = ['That title is already in use']
+            errors['Title'] = [u'此標題已存在']
+            
 
     # Check description
     if len(request_data['description']) > constants.DESCRIPTION_MAX_LENGTH:
