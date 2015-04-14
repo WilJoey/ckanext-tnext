@@ -5,11 +5,11 @@
 
 
   <tr>
-    <td>{{ suggest.open_time[:16]}}</td>
-    <th><a href="/suggest/{{ suggest.id }}" onclick="views_plus('{{ suggest.id }}')" >{{ title }}</a></td>
+    <td>{{ suggest.open_time[:10]}}</td>
+    <td><a href="/suggest/{{ suggest.id }}" onclick="views_plus('{{ suggest.id }}')" >{{ title }}</a></td>
     <td>{{ suggest.user_id }}</td>
-    <td>{{ suggest.views }}</td>
-    <td>{{ suggest.comments }}</td>
+    <td style="text-align:right;">{{ suggest.views }}</td>
+    <td style="text-align:right;">{{ suggest.comments }}</td>
   </tr>
 
 

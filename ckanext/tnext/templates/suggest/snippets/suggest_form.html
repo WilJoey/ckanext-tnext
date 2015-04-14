@@ -42,7 +42,10 @@ then itself be extended to add/remove blocks of functionality. #}
           <a class="btn btn-danger pull-left" href="{% url_for controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='delete', id=data.get('id') %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
         {% endif %}
       {% endblock %}
-      <button class="btn btn-primary" type="submit" name="save">{% block save_button_text %}{{ _('Create Data Request') }}{% endblock %}</button>
+      
+      <a href="/suggest" class="btn">返回</a>
+
+      <button class="btn btn-primary" type="submit" name="save">{% block save_button_text %}{{ '新增建議' }}{% endblock %}</button>
     </div>
   {% endblock %}
 </fom>

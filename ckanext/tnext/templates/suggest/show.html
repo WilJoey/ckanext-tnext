@@ -37,24 +37,26 @@
         <!--<dt>標題</dt>
         <dd>{{ c.suggest.get('title') }}</dd>-->
         <dt>建議人</dt>
-        <dd><p>{{ c.suggest.get('user_id') }}</p></dd>
+        <dd><p>&nbsp;{{ c.suggest.get('user_id', '') }}</p></dd>
         <dt>建議資料集名稱</dt>
-        <dd><p>{{ c.suggest.get('dataset_name', '&nbsp;') }}</p></dd>
+        <dd><p>&nbsp;{{ c.suggest.get('dataset_name', '') }}</p></dd>
         <dt>建議開放的欄位</dt>
-        <dd><p>{{ c.suggest.get('suggest_columns', '&nbsp;') }}</p></dd>
+        <dd><p>&nbsp;{{ c.suggest.get('suggest_columns', '') }}</p></dd>
         <dt>{{_('Description')}}</dt>
         <dd>
           {% if c.suggest.get('description') %}
             <p class="notes embedded-content">
-              {{ h.render_markdown(c.suggest.get('description', '&nbsp;')) }}
+              {{ h.render_markdown(c.suggest.get('description', '')) }}
             </p>
+          {% else %}
+             <p>&nbsp;</p>
           {% endif %}
         </dd>
 
         <dt>瀏覽次數</dt>
-        <dd><p>{{ c.suggest.get('views') }}</p></dd>
+        <dd><p>&nbsp;{{ c.suggest.get('views', '') }}</p></dd>
         <dt>建議日期</dt>
-        <dd><p>{{ c.suggest.get('open_time')[:16] }}</p></dd>
+        <dd><p>&nbsp;{{ c.suggest.get('open_time')[:16] }}</p></dd>
       </dl>
 
     </div>
