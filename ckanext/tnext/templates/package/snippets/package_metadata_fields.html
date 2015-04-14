@@ -1,10 +1,11 @@
 {% import 'macros/form_tn.html' as form_tn %}
 
 {% ckan_extends %}
+{% set extras=data.extras %}
 
 {% block package_metadata_fields %}
   
-  {% set extras=data.extras %}
+  
 
   {% if (metacache) %}
     <div style="display:none;">
@@ -84,6 +85,16 @@
       {{ form_tn.custom_meta('extras__8__', id='field-extras-8', key='提供機關地址', value=' ', is_required=true, classes=['control-medium']) }}
     {% endfor %}
     
+{% block package_old_import_hidden %}
+  <div style="display:none;">
+  {% for extra in extras if extra['key']=='oldimport' %}
+    {{ form_tn.custom_meta('extras__9__', id='field-extras-9', key=extra.key, value=extra.value, is_required=false)}}
+  {% else %}
+    {{ form_tn.custom_meta('extras__9__', id='field-extras-9', key='oldimport', value=' ', is_required=false) }}
+  {% endfor %}
+</div>
+
+{% endblock %}
 
     {{ form.input('maintainer_email', label='提供機關聯絡人電子郵件', id='field-maintainer-email', placeholder=_('joe@example.com'), value=data.maintainer_email, error=errors.maintainer_email, classes=[]) }}
   {% endblock %}

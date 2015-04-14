@@ -15,8 +15,6 @@
   {{ form.errors(error_summary) }}
 
   <input name="id" value="{{ data.id }}" type="hidden"/>
-
-
     {% block basic_fields_url %}
       {% set is_upload = (data.url_type == 'upload') %}
       {{ form.image_upload(data, errors, field_url='url', field_upload='upload', field_clear='clear_upload',
@@ -37,7 +35,7 @@
       {% call form.input('format', id='field-format', label='檔案格式', placeholder=_('eg. CSV, XML or JSON'), value=data.format, error=errors.format, classes=['control-medium'], attrs=format_attrs, is_required=true) %}
       {% endcall %}
 
-      {{ form.input('extras0', id='field-extras0', label='編碼格式', placeholder='', value=data.extras0, error=errors.extras0, classes=['control-medium']) }}
+      {{ form.input('extras0', id='field-extras0', label='編碼格式', placeholder='', value=data.extras0 or 'UTF-8', error=errors.extras0, classes=['control-medium']) }}
       <hr/>
       <div style="display:none;">
       {{ form.input('extras1', id='field-extras1', label='資料發布日期', placeholder='', value=data.extras1, error=errors.extras1, classes=['control-medium', 'dpicker']) }}
@@ -100,5 +98,5 @@
   {% resource 'tnext_jscss/js/favorite.js' %}
   {% resource 'tnext_jscss/js/resource-require.js' %}
   {% resource 'tnext_jscss/css/datepicker.css' %}
-
+  
 </form>

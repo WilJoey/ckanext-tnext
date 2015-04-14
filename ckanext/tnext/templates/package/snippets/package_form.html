@@ -5,10 +5,6 @@
   {% snippet 'package/snippets/package_basic_fields.html', data=data, errors=errors, licenses=c.licenses, groups_available=c.groups_available, metacache=false %}
 {% endblock %}
 
-
-
-
-
   {% block form_actions %}
 
     <div class="form-actions">
@@ -31,7 +27,50 @@
       <button class="btn btn-primary" type="submit" name="save">{% block save_button_text %}{{ _('Next: Add Data') }}{% endblock %}</button>
       {{ form.required_message() }}
     </div>
-  
+
+  {#% block ds_import_select%}
+<!-- Modal -->
+<div id="importModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">資料匯入</h3>
+  </div>
+  <div class="modal-body">
+    {% set orgs = h.organizations_available('create_dataset') %}
+    
+    
+    <div class="control-group">
+      <label for="selOrgs" class="control-label">組織機關</label>
+      <div class="controls">
+        <select id="selOrgs">
+          {% for org in orgs %}
+            <option value="{{ org.id }}">{{ org.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label for="selDatasets" class="control-label">資料集範本</label>
+      <div class="controls">
+        <select id="selDatasets" class="span3">
+        </select>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <div class="controls">
+        <button type="button" class="btn btn-info" onclick="_dsImport()" >匯入</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">關閉</button>
+    
+  </div>
+</div>
+  {% endblock %#}
+
 
   {% resource 'tnext_jscss/css/datepicker.css' %}
   {% resource 'tnext_jscss/js/favorite.js' %}
@@ -42,5 +81,8 @@
   {% else %}
     {% resource 'tnext_jscss/js/package-require-step1.js' %}  
   {% endif %}
+
+  {% resource 'tnext_jscss/js/package-old-import.js' %}  
+
 
   {% endblock %}
