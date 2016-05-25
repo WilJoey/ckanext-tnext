@@ -111,8 +111,12 @@ class TnextPlugin(plugins.SingletonPlugin):
 
         map.connect('home_show','/show', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='show')
+        
         map.connect('home_specification','/specification', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='specification')
+        map.connect('home_specification_old','/specification_old',
+            controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='specification_old')
+
         map.connect('home_guide','/guide', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='guide')
         map.connect('home_faq','/faq', 

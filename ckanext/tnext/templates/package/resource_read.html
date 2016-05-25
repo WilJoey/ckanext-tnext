@@ -68,7 +68,12 @@
               </tr>
               <tr>
                 <th scope="row">最後更新日期</th>
-                <td>{{ h.render_datetime(res.last_modified) or h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created, '%Y/%m/%d') or _('unknown') }}</td>
+                <td>
+                  {# {{ h.render_datetime(res.last_modified) or h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created, '%Y/%m/%d') or _('unknown') }} #}
+                  {% for key, value in extras if key=='extras2' %}
+                    {{ value }}
+                  {% endfor %}
+                 </td>
               </tr>
               
               <tr class="toggle-more"><th scope="row">未來更新日期</th><td>

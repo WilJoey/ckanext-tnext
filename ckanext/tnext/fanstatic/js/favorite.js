@@ -14,4 +14,14 @@ $(document).ready(function (){
     ).on('changeDate', function (ev){
       if(ev.viewMode=='days') $(this).datepicker('hide');
     });
+
+    var n = new Date();
+    var y = n.getFullYear();
+    var m = n.getMonth()+1;
+    if(m<10) m="0"+m;
+    var d = n.getDate();
+    if(d<10) d="0"+d;
+
+    $("#field-extras2").val(y +"/"+ m +"/"+d);
+
 });

@@ -106,11 +106,58 @@ GROUP BY content ORDER BY count DESC, content ASC; '''
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return h.json.dumps(result)
 
+    def orgApi (self):
+        _ViewCount = collections.namedtuple("ViewCount", "id title name org_name dataset_views resource_views resource_downloads")
+
+        engine = model.meta.engine
+        sql = '''
+SELECT p.id, p.title, p.name,
+    (SELECT title FROM "group" WHERE id=p.owner_org) AS org_name,
+    COALESCE(SUM(s.count), 0) AS dataset_views, 
+    COALESCE((SELECT SUM(resource_count) FROM v_dataset_count WHERE dataset_id=p.id), 0) AS resource_views,
+    COALESCE((SELECT SUM(resource_count) FROM v_dataset_download WHERE dataset_id=p.id), 0) AS resource_downloads
+FROM package AS p
+    LEFT OUTER JOIN tracking_summary AS s ON s.package_id = p.id
+WHERE p.state='active'
+GROUP BY p.id, p.title
+ORDER BY org_name ASC; '''
+        result = [_ViewCount(*t) for t in engine.execute(sql).fetchall()]
+        
+        response.headers['Content-Type'] = 'application/json;charset=utf-8'
+        return h.json.dumps(result)
+
+    def groupApi (self):
+        _ViewCount = collections.namedtuple("ViewCount", "id title name group_name dataset_views resource_views resource_downloads")
+
+        engine = model.meta.engine
+        sql = '''
+SELECT p.id, p.title, p.name, g.title as group_name, 
+  COALESCE(SUM(s.count), 0) AS dataset_views,
+  COALESCE((SELECT SUM(resource_count) FROM v_dataset_count WHERE dataset_id=p.id), 0) AS resource_views,
+  COALESCE((SELECT SUM(resource_count) FROM v_dataset_download WHERE dataset_id=p.id), 0) AS resource_downloads
+FROM 
+  public."package" p LEFT OUTER JOIN tracking_summary AS s ON s.package_id = p.id, 
+  public.member m, 
+  public."group" g
+WHERE 
+  m.table_id = p.id AND g.id = m.group_id AND 'active' = p.state AND false = g.is_organization
+GROUP BY
+  p.id, g.id
+ORDER BY
+  g.title ASC, 
+  p.title ASC; '''
+        result =  [_ViewCount(*t) for t in engine.execute(sql).fetchall()]
+
+        response.headers['Content-Type'] = 'application/json;charset=utf-8'
+        return h.json.dumps(result)
+
     def show(self):
         return base.render('home/show.html')
 
     def specification(self):
         return base.render('home/specification.html')
+    def specification_old(self):
+        return base.render('home/specification_old.html')
 
     def guide(self):
         return base.render('home/guide.html')
