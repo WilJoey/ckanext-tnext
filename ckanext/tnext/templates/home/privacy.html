@@ -1,0 +1,81 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Specification') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{% link_for '隱私權政策', controller='ckanext.tnext.controllers.TnStats:TnStatsController', action='privacy' %}</li>
+{% endblock %}
+
+{% block primary %}
+  <article class="module">
+
+      <p style="line-height:26px;"></p>
+
+    <div class="module-content" style="padding:30px 70px;">
+      <h2>臺南市政府資料開放平台隱私權保護、使用及資訊安全政策</h2>
+      <p style="line-height:26px;">&nbsp;</p>
+      <div style="font-size:16px;">
+      <p style="color:#c66;font-weight:bold;">隱私保護政策</p>
+      <p style="line-height:26px;">適用範圍：</p>
+      <p style="line-height:26px;">．「臺南市政府開放資料平台」個人資料之蒐集政策</p>
+      <p style="line-height:26px;">．「臺南市政府開放資料平台」上述蒐集資料之運用政策</p>
+	  <p style="line-height:26px;">．「臺南市政府開放資料平台」cookie運用政策</p>
+	  <p style="line-height:26px;">．「臺南市政府開放資料平台」與第三者共用個人資料之政策</p>
+      <p style="line-height:26px;">．臺南市政府對於隱私保護條款的修改</p>      
+      <p style="line-height:26px;">．「臺南市政府開放資料平台」隱私保護政策諮詢</p>
+      <p style="line-height:26px;">以下的隱私保護保護政策，適用於您在「臺南市政府開放資料平台」活動時，所涉及的個人資料蒐集、運用與保護。</p>      
+      <p style="line-height:26px;">&nbsp;</p>	  
+	  
+	  
+      <p style="color:#c66;font-weight:bold;">「臺南市政府開放資料平台」個人資料之蒐集政策</p>
+      <p style="line-height:26px;">臺南市政府將在以下所述狀況，根據「臺南市政府開放資料平台」所提供的不同服務，因需要而會收集您的相關資料：</p>
+      <p style="line-height:26px;">1. 網站瀏覽、資料下載</p>
+      <p style="line-height:26px;">&nbsp;&nbsp;&nbsp;&nbsp;當您瀏覽「臺南市政府開放資料平台」或有檔案下載行為時，會保留您在瀏覽或查詢時，伺服器產生的相關紀錄，包括您使用連線設備的瀏覽資料紀錄、時間等。</p>
+	  <p style="line-height:26px;">2. 網站留言、意見回饋</p>
+      <p style="line-height:26px;">&nbsp;&nbsp;&nbsp;&nbsp;您可透過「臺南市政府開放資料平台」相關留言管道進行意見表達與相關建議，您主動提供的個人資訊與留言內容將會保存於伺服器中供本平台管理、改善參考使用。</p>      
+      <p style="line-height:26px;">3. 其他</p>
+      <p style="line-height:26px;">&nbsp;&nbsp;&nbsp;&nbsp;請您注意，在「臺南市政府開放資料平台」所連結的網站，也可能蒐集您個人的資料。對於您主動提供的個人資訊，這些連結網站有其個別的隱私保護保護政策，其資料處理措施不適用「臺南市政府開放資料平台」隱私保護保護政策，「臺南市政府開放資料平台」不負任何連帶責任。</p>      
+      <p style="line-height:26px;">&nbsp;</p>
+
+      <p style="color:#c66;font-weight:bold;">「臺南市政府開放資料平台」個人資料蒐集之運用政策</p>
+      <p style="line-height:26px;">1. 網站瀏覽、資料下載</p>
+      <p style="line-height:26px;">&nbsp;&nbsp;&nbsp;&nbsp;「臺南市政府開放資料平台」所蒐集瀏覽、下載相關歷程資料係供本平台管理單位內部作流量和網路行為調查的總量分析，以利於提升本平台的服務品質。若基於公共利益為統計或學術研究之必要，資料亦將經過處理，使其揭露方式無從識別特定之當事人。</p>
+	  <p style="line-height:26px;">2. 網站留言、意見回饋</p>
+      <p style="line-height:26px;">&nbsp;&nbsp;&nbsp;&nbsp;(1)「臺南市政府開放資料平台」資料集下載頁面中所用留言功能，採用Disqus服務(第三方留言服務https://disqus.com/)，您的個人資訊與留言內容將會由Disqus服務收集，請勿留言任何隱私資訊，本平台將不負任何連帶責任。</p>      
+      <p style="line-height:26px;">&nbsp;&nbsp;&nbsp;&nbsp;(2)如果您因為提供意見回饋而提供個人資料給「臺南市政府開放資料平台」時，我們將僅使用該資訊來回復您和幫助我們提供您所需要的資訊給您。如果您的需求和其他的政府機關有關的話，我們也可能將您的個人資料和其他的政府機關分享。我們並不會收集您的個人資料做為任何其他的用途使用，您所提供的資訊亦不會提供給任何私人機構或私人使用。</p>      
+      <p style="line-height:26px;">&nbsp;</p>
+
+      <p style="color:#c66;font-weight:bold;">「臺南市政府開放資料平台」Cookie運用政策</p>
+      <p style="line-height:26px;">Cookie是伺服端為了區別使用者的不同喜好，經由瀏覽器寫入使用者硬碟的一些簡短資訊。您可以在Netscape的「功能設定」的「進階」或是IE的「Internet選項」的「安全性」中選擇修改您瀏覽器對Cookie的接受程度，包括接受所有Cookie、設定Cookie時得到通知、拒絕所有Cookie等三種。如果您選擇拒絕所有的Cookie，您可能無法使用部份個人化服務，或是參與部份的活動。</p>
+      <p style="line-height:26px;">依據以下目的及情況，「臺南市政府開放資料平台」會在本政策原則之下，在您瀏覽器中寫入並讀取Cookie：</p>
+      <p style="line-height:26px;">1. 為提供更好的個人化服務，以及方便您參與個人化的互動活動。cookie在您註冊或登入時建立，並在您登出時修改。</p>
+      <p style="line-height:26px;">2. 為統計瀏覽人數及分析瀏覽模式，以了解網頁瀏覽的情況，做為「臺南市政府開放資料平台」改善服務的參考。</p>
+      <p style="line-height:26px;">&nbsp;</p>
+
+      <p style="color:#c66;font-weight:bold;">「臺南市政府開放資料平台」與第三者共用個人資料之政策</p>
+      <p style="line-height:26px;">「臺南市政府開放資料平台」絕不會任意出售、交換、或出租任何您的個人資料給其他團體或個人，但會在本政策原則之下，與第三者共用您的個人資料。</p>
+      <p style="line-height:26px;">本府雖已在前述政策說明向您保證，絕不在未經您同意的狀況下將您的個人資訊任意揭露。但是，在以下幾個特殊的狀況下，本府將依相關法令處理您的個人資料，不適用前述保護規定。這些狀況包括（但不限於）：</p>
+      <p style="line-height:26px;">1. 當您在本網站的行為，違反本府的服務條款或可能損害或妨礙本府權益或導致任何人遭受損害，經本府研析揭露您的個人資料是為了辨識、聯絡或採取法律行動所必要者。</p>
+      <p style="line-height:26px;">2. 基於善意相信揭露您的個人資料為法律所需要。</p>
+      <p style="line-height:26px;">3. 司法單位因公眾安全，要求「臺南市政府開放資料平台」公開特定個人資料時，「臺南市政府開放資料平台」將視司法單位適法性及是否遵照法定之程序，以及考量對「 臺南市政府開放資料平台」所有使用者安全，採行可能必要的配合措施。</p>
+      <p style="line-height:26px;">&nbsp;</p>
+
+      <p style="color:#c66;font-weight:bold;">臺南市政府對於隱私保護條款及安全政策的修改</p>
+      <p style="line-height:26px;">由於科技發展的迅速，相關法規訂定未臻完備前，以及未來可能難以預見的環境變遷等因素，本府將會視需要修改網站上所提供的隱私保護及安全政策的說明，以落實保障您隱私權及網路安全的立意。當本府完成隱私保護條款及安全政策的修改時，我們會立即將其刊登於本府的網站中，並以醒目標示提醒您前往點選閱讀。</p>
+      <p style="line-height:26px;">&nbsp;</p>
+
+      <p style="color:#c66;font-weight:bold;">「臺南市政府開放資料平台」隱私保護及安全政策諮詢</p>
+      <p style="line-height:26px;">若您對「臺南市政府開放資料平台」的隱私保護及安全政策有任何疑問，都歡迎您隨時與我們聯絡。</p>
+      <p style="line-height:26px;">&nbsp;</p>
+
+
+      </div>
+
+      <br/>
+
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary %}{% endblock %}
+

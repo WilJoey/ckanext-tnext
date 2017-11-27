@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import logging
-import sqlalchemy as sa
 
 import ckan.lib.base as base
 import ckan.model as model
@@ -8,12 +7,11 @@ import ckan.plugins as plugins
 import ckan.lib.helpers as helpers
 import ckanext.tnext.constants as constants
 import functools
-import requests
-import smtplib
 
-from ckan.common import response, request, json
+
+from ckan.common import request
 from urllib import urlencode
-from sqlalchemy import text
+
 
 
 
@@ -118,7 +116,7 @@ class SuggestsController(base.BaseController):
         try:
             tk.check_access(constants.SUGGEST_CREATE, context, None)
             self._process_post(constants.SUGGEST_CREATE, context)
-            log.info('Suggest_new')
+
             # The form is always rendered
             return tk.render('suggest/new.html')
 
@@ -136,10 +134,7 @@ class SuggestsController(base.BaseController):
             data_dict['user_id'] = request.POST.get('user_id', '')
             data_dict['dataset_name'] = request.POST.get('dataset_name', '')
             data_dict['suggest_columns'] = request.POST.get('suggest_columns', '')
-            data_dict['org_id'] = request.POST.get('org_id', '')
-            data_dict['email'] = request.POST.get('email', '')
-
-            log.info('Suggest_process_post1 %s' % action)
+    
             if action == constants.SUGGEST_UPDATE:
                 data_dict['id'] = request.POST.get('id', '')
 
@@ -148,9 +143,6 @@ class SuggestsController(base.BaseController):
                 tk.response.status_int = 302
                 tk.response.location = '/%s/%s' % (constants.SUGGESTS_MAIN_PATH,
                                                    result['id'])
-                #log.info('Suggest_process_post2 %s %s' % (result['id'],result['open_time']))             
-                self.sendmail(result['id'])
-                log.info('Suggest_process_post3 %s' % result['id'])
 
             except tk.ValidationError as e:
                 log.warn(e)
@@ -191,92 +183,8 @@ class SuggestsController(base.BaseController):
         #if request.POST:
         tk.get_action('suggest_views')(context, data_dict)
         return 'abc'
-    
-    def sendmail(self, id):
-        log.info("Suggest_sendmail start: " + id)
         
-        context = self._get_context()
         
-        log.info("Suggest_sendmail 2")
-        mail_content =self._get_mail_content(id)
-        mail_recipient=[]
-        FROM = 'tainanod@gmail.com'
-        engine = sa.create_engine('postgresql://ckan_default:123456@localhost/ckan_tnod')
-        user_infos = engine.execute("select * from public.user where id in(select table_id from public.member where group_id=%s and table_name='user' and capacity='admin')",mail_content['org_id'])
-        for user_info in user_infos:
-            mail_recipient.append(user_info['email'])
-        mail_recipient.append("opendata@tainan.gov.tw")
-        mail_recipient.append("jungchang71@gmail.com")
-        mail_recipient=list(set(mail_recipient)) 
-        TO=mail_recipient   
-        #TO = 'jungchang71@gmail.com'       
-        #SUBJECT = '[資料集建議回饋主動通知][%s][%s]' % (mail_content['id'], mail_content['title'])
-        SUBJECT = '[資料集建議回饋主動通知]'
-        #TEXT = '依據資料開放平台資料建議專區功能，平台使用者於%s發布資料建議，其資料建議相關單位為%s，敬請長官前往平台%s 進行檢閱並回覆使用者。\n以上通報，敬請檢閱，謝>謝您 \n\n 臺南市政府資料開放平台  敬上 ' % (mail_content['open_time'], mail_content['org'],mail_content['id'])
-        TEXT = '依據資料開放平台資料建議專區功能，平台使用者於%s發布資料建議，其資料建議相關單位為%s，敬請長官前往平台%s 進行檢閱並回覆使用者。\n以上通報，敬請檢閱，謝謝您 \n\n 臺南市政府資料開放平台  敬上 '  % (mail_content['open_time'].strftime('%Y/%m/%d'), mail_content['org'].encode('utf-8'),'http://data.tainan.gov.tw/suggest/'+id)
-        message = """Subject: %s\n\n%s""" % (SUBJECT, TEXT)
-        #log.info('Suggest_sendmail_type: %s' % type(mail_content['org']))
-        #log.info('Suggest_sendmail_content: %s' % SUBJECT)
-        #server_ssl = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-        #server_ssl.login('tainanod@gmail.com','@tnodtnod')  
-        #server_ssl.sendmail(FROM, TO, message)
-        #server_ssl.close()
-        
-        FROM = 'opendata@mail.tainan.gov.tw'
-        server = smtplib.SMTP("mail.tainan.gov.tw:25")
-        #server.set_debuglevel(1)
-        server.ehlo()
-        server.login('opendata', 'opendata1234!')
-        server.sendmail(FROM, TO, message)
-        server.close()
-    
-    def domail(self, id):
-        log.warn("domail start: " + id)
-
-        data_dict = {'id': id}
-        context = self._get_context()
-        mail_content =self._get_mail_content(id)
-
-        title = u'[OD][%s][代刚戈-%s]' % (mail_content['id'], mail_content['title'])
-        '''
-        message = {
-            "org_no": mail_content['org_id'],
-            "org_name": mail_content['org'],
-            "name": mail_content['user_name'],
-            "email": mail_content['email'],
-            "context": mail_content['description']
-        }
-        '''
-        ctx = {
-            "Title": title,
-            "org_no": mail_content['org_id'],
-            "org_name": mail_content['org'],
-            "name": mail_content['user_name'],
-            "email": mail_content['email'],
-            "context": mail_content['description']
-        }
-        url = u'http://demo2.geo.com.tw/ksod/api/domail/' + id
-        resp = requests.post(url, data=ctx)
-        
-        result = helpers.json.loads(resp.text)
-        if result['Success']:
-            sql = 'UPDATE suggests SET send_mail=1 WHERE id= :id;'
-            model.meta.engine.execute(text(sql), id=id)
-            model.Session.commit()
-            sql = 'UPDATE suggests SET mail_time=CURRENT_TIMESTAMP WHERE id=:id AND mail_time is null AND send_mail=1;'
-            model.Session.execute(sql, {'id': id})
-            model.Session.commit()
-
-        response.headers['Content-Type'] = 'application/json;charset=utf-8'
-        return helpers.json.dumps(result)
-
-
-    def _get_mail_content(self,id):
-        context = self._get_context()
-        data_dict = {'closed': False, 'id': id}
-        mail_content = tk.get_action('get_domail_content')(context, data_dict)
-        return mail_content
-
 
     def suggest_comment(self, id):
         if request.GET:

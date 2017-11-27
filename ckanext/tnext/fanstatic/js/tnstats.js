@@ -1,3 +1,4 @@
+var config = { };
 $(document).ready(function (){
     var checkName = '',
         rowCount = 1,
@@ -20,4 +21,30 @@ $(document).ready(function (){
     });
     
     checkTd.attr("rowspan", rowCount);
+    config = getConfig($('#hidConfig').val());
+
+    $('#btnDownload').click(function (){
+        window.open(config.windowOpenUrl);
+    });
+
 });
+
+function getConfig(val){
+    if(val === 'org'){
+        return {
+            menuIndex: 0,
+            selectId:'#selOrg',
+            title: 'org_name',
+            dataUrl: '/tnstats/orgApi',
+            windowOpenUrl :'/tnstats/orgCsv'
+        }
+    }else{
+        return {
+            menuIndex: 1,
+            selectId:'#selGroup',
+            title: 'group_name',
+            dataUrl: '/tnstats/groupApi',
+            windowOpenUrl :'/tnstats/groupCsv'
+        }
+    }
+}

@@ -13,26 +13,28 @@
     
 
     <section id="stats-most-edited" class="module-content tab-content active">
-      <h2>組織資料集瀏覽與下載統計</h2>
-      {% if c.datasets_count %}
-        <table class="table table-chunky table-bordered table-striped">
+      <h2>組織即時管理統計資訊</h2>
+      <input type="hidden" id="hidConfig" value="org" /> 
+      <button id="btnDownload" class="btn btn-primary btn-print">下載</button>
+      {% if c.orgstats %}
+        <table id="export_table" class="table table-chunky table-bordered table-striped">
           <thead>
             <tr>
               <th class="metric">組織</th>
-              <th style="width:200px;">資料集</th>
-              <th class="">資料集瀏覽次數</th>
-              <th class="">資料瀏覽次數</th>
-              <th class="">資料下載次數</th>
+              <th style="">資料集數量</th>
+              <th class="">資料集建議則數(回覆數)</th>
+              <th class="">資料集意見回饋則數</th>
+              <th class="">資料集逾期未更新</th>
             </tr>
           </thead>
           <tbody>
-            {% for package in c.datasets_count %}
+            {% for orgstat in c.orgstats %}
               <tr >
-                <td class="metric">{{ package.org_name }}</td>
-                <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
-                <td class="metric">{{ package.dataset_views }}</td>
-                <td class="metric">{{ package.resource_views }}</td>
-                <td class="metric">{{ package.resource_downloads }}</td>
+                <td class="metric">{{ orgstat.org_name }}</td>
+                <td class="metric">{{ orgstat.dataset_counts }}</td>
+                <td class="metric">{{ orgstat.suggest_counts }}</td>
+                <td class="metric">{{ orgstat.comment_counts }}</td>
+                <td class="metric">{{ orgstat.outdate_counts }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -51,10 +53,10 @@
     <h2 class="module-heading"><i class="icon-bar-chart icon-medium"></i> {{ _('Statistics Menu') }}</h2>
     <nav data-module="stats-nav">
       <ul class="unstyled nav nav-simple">
-        <li class="nav-item active"><a href="/tnstats/index">組織資料集瀏覽與下載統計</a></li>
+	<li class="nav-item"><a href="/tnstats/index">組織資料集瀏覽與下載統計</a></li>
         <li class="nav-item"><a href="/tnstats/group">群組資料集瀏覽與下載統計</a></li>
         <li class="nav-item"><a href="/tnstats/keyword">關鍵字統計</a></li>
-        <li class="nav-item"><a href="/tnstats/org">組織即時管理統計資訊</a></li>
+        <li class="nav-item active"><a href="/tnstats/org">組織即時管理統計資訊</a></li>
       </ul>
     </nav>
   </section>

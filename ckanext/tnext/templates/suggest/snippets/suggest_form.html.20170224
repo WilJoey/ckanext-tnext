@@ -18,8 +18,6 @@ then itself be extended to add/remove blocks of functionality. #}
     {{ form.input('user_id', id='field-user_id', label='建議人', placeholder='', value=user_id, error=errors['UserId'], classes=['control-full'], is_required=true) }}
   {% endblock %}
 
-{{ form.input('email', label=_('Email'), id='field-email', type='email', value=data.email, error=errors['Email'], placeholder=_('eg. joe@example.com'), classes=['control-medium'], is_required=true) }}
-
   {% block offering_title %}
     {{ form.input('title', id='field-title', label=_('Title'), placeholder='', value=title, error=errors['Title'], classes=['control-full', 'control-large'], is_required=true) }}
   {% endblock %}
@@ -27,22 +25,6 @@ then itself be extended to add/remove blocks of functionality. #}
   {% block offering_dataset_name %}
     {{ form.input('dataset_name', id='field-dataset_name', label='建議資料集名稱', placeholder='', value=dataset_name, error=errors['DatasetName'], classes=['control-full'], is_required=false) }}
   {% endblock %}
-
-  {% block offering_orgs %}
-    {% set orgs = h.get_org_list() %}
-    <div class="control-group control-full">
-      <label class="control-label" for="field-org_id">建議業務單位</label>
-      <div class="controls ">
-        <select id="field-org_id" name="org_id">
-            <option value="" selected="selected">==無建議業務單位===</option>
-            {% for organization in orgs %}
-              <option value="{{ organization.id }}">{{ organization.title }}</option>
-            {% endfor %}
-          </select>
-      </div>
-  </div>
-  {% endblock %}
-
   
   {% block offering_suggest_columns %}
     {{ form.input('suggest_columns', id='field-suggest_columns', label='建議開放的欄位', placeholder='', value=suggest_columns, error=errors['SuggestColumns'], classes=['control-full'], is_required=false) }}

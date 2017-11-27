@@ -5,6 +5,28 @@
 
 {% set extras=data.extras %}
 
+{% set servicetypes = [ 
+  { "value":"000","text":"==請選擇=="},
+  { "value":"100","text":"生育保健"},
+  { "value":"200","text":"出生及收養"}, 
+  { "value":"300","text":"求學及進修"},
+  { "value":"400","text":"服兵役"},
+  { "value":"500","text":"求職及就業"},
+  { "value":"600","text":"開創事業"},
+  { "value":"700","text":"婚姻"},
+  { "value":"800","text":"投資理財"},
+  { "value":"900","text":"休閒旅遊"},
+  { "value":"A00","text":"交通及通訊"},
+  { "value":"B00","text":"就醫"},
+  { "value":"C00","text":"購屋及遷徙"},
+  { "value":"D00","text":"選舉及投票"},
+  { "value":"E00","text":"生活安全及品質"},
+  { "value":"F00","text":"退休"},
+  { "value":"G00","text":"老年安養"},
+  { "value":"H00","text":"生命禮儀"},
+  { "value":"I00","text":"公共資訊"}
+] %}
+
 
 {% block package_basic_fields_org %}
   {# if we have a default group then this wants remembering #}
@@ -109,6 +131,15 @@
 
 
 {% block package_basic_fields_custom %}
+
+    <!--joe@20160201-->
+    {% for extra in extras if extra['key']=='服務分類' %}
+      {{ form.select('extras__11__value', id='field-extras-11', label='服務分類', options=servicetypes, selected=extra.value, is_required=true) }} 
+    {% else %}
+      {{ form.select('extras__11__value', id='field-extras-11', label='服務分類', options=servicetypes, selected='000', is_required=true) }} 
+    {% endfor %}
+    <input id="field-extras-11-key" type="hidden" name="extras__11__key" value="服務分類">
+
   {% for extra in extras if extra['key']=='資料集類型' %}
     {{ form_tn.custom_meta('extras__0__', id='field-extras-0', key=extra.key, value=extra.value, is_required=true) }}
   {% else %}

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import ckan.plugins as p
 from ckan.lib.base import BaseController, config
 import ckan.lib.helpers as h
@@ -7,9 +6,6 @@ import collections
 import sqlalchemy
 from ckan.common import response, request, json
 import ckan.lib.base as base
-import logging
-
-log = logging.getLogger(__name__)
 
 class TnStatsController(BaseController):
 
@@ -86,7 +82,7 @@ GROUP BY content ORDER BY count DESC, content ASC; '''
         sql = '''
 SELECT g.id,g.title AS org_name,
     (SELECT count(*) FROM package where owner_org=g.id and state='active') AS dataset_counts,
-    (SELECT count(sg.*)||'('||count(cm.*)||')' FROM suggests as sg left join suggests_comments as cm on sg.id=cm.suggest_id where sg.org_id=g.id and sg.closed<>'t') AS suggest_counts,
+    (SELECT count(*) FROM suggests where org_id=g.id) AS suggest_counts,
     (SELECT count(*) FROM dataset_comments where org_id=g.id) AS comment_counts,
     (SELECT count(*) FROM outdate_datasets where org_id=g.id) AS outdate_counts
 FROM public.group as g where type='organization' and state='active'
@@ -175,40 +171,6 @@ ORDER BY
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return h.json.dumps(result)
 
-    def _orgApiResult(self):
-        log.info("orgCsv _orgApiResult 1")
-        engine = model.meta.engine
-        sql = '''
-SELECT g.id,g.title AS org_name,
-    (SELECT count(*) FROM package where owner_org=g.id and state='active') AS dataset_counts,
-    (SELECT count(sg.*)||'('||count(cm.*)||')' FROM suggests as sg left join suggests_comments as cm on sg.id=cm.suggest_id where sg.org_id=g.id and sg.closed<>'t') AS suggest_counts,
-    (SELECT count(*) FROM dataset_comments where org_id=g.id) AS comment_counts,
-    (SELECT count(*) FROM outdate_datasets where org_id=g.id) AS outdate_counts
-FROM public.group as g where type='organization' and state='active'
-ORDER BY org_name ASC; '''
-        result = engine.execute(sql).fetchall()
-        log.info('orgCsv _orgApiResult2 %s' % type(result))
-        return result        
- 
-    def orgCsv(self):
-        log.info("orgCsv start")
-        head = u'\ufeff組織,資料集數量,資料集建議則數(回覆數),資料集意見回饋則數,資料集逾期未更新\r\n'
-        data = self._orgApiResult()
-        log.info('orgCsv %s' % type(data))
-        return self._csv(head, data)
-
-    def _csv(self, head, data):
-        log.info("orgCsv _csv")
-        base.response.headers['Content-type'] ='text/csv; charset=utf-8'
-        base.response.headers['Content-disposition'] ='attachment;filename=statistics.csv'
-        
-        csvFormatter = u'"{0}",{1},{2},{3},{4}\r\n'
-        for item in data:
-            #data += csvFormatter.format(*item)
-            log.info('orgCsv _csv1 %s' % item[1])
-            head += csvFormatter.format(item[1],item[2],item[3],item[4],item[5])
-        return head 
-
     def show(self):
         return base.render('home/show.html')
 
@@ -225,9 +187,3 @@ ORDER BY org_name ASC; '''
     
     def faq(self):
         return base.render('home/faq.html')
-    
-    def privacy(self):
-        return base.render('home/privacy.html')
-
-    def webdataopen(self):
-        return base.render('home/webdataopen.html')

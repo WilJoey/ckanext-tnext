@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckan.logic as logic
@@ -89,9 +87,6 @@ def _dictize_suggest_list(suggest):
     open_time = str(suggest.open_time)
     close_time = suggest.close_time
     close_time = str(close_time) if close_time else close_time
-    #mail_time = suggest.mail_time
-    #mail_time = str(mail_time) if mail_time else mail_time
-    gg = model.Session.query(model.Group).filter(model.Group.id == suggest.org_id).first()
 
     data_dict = {
         'id': suggest.id,
@@ -99,12 +94,7 @@ def _dictize_suggest_list(suggest):
         'user_id': _star_id(suggest.user_id),
         'open_time': open_time,
         'views': suggest.views,
-        'comments' : db.Comment.get_count_by_suggest(suggest_id=suggest.id),
-        'org_id': suggest.org_id ,
-        'org': '' if gg is None else gg.title,
-        'send_mail': suggest.send_mail,
-        'email': suggest.email,
-        'mail_time': suggest.mail_time.strftime("%Y-%m-%d %H:%M") if suggest.mail_time else ''
+        'comments' : db.Comment.get_count_by_suggest(suggest_id=suggest.id)
     }
     return data_dict
 
@@ -148,10 +138,7 @@ def _dictize_suggest(suggest):
     # fields contains a valid date
     close_time = suggest.close_time
     close_time = str(close_time) if close_time else close_time
-    mail_time = suggest.mail_time
-    mail_time = str(mail_time) if mail_time else mail_time
 
-    gg = model.Session.query(model.Group).filter(model.Group.id == suggest.org_id).first()
     # Convert the data request into a dict
     data_dict = {
         'id': suggest.id,
@@ -166,12 +153,7 @@ def _dictize_suggest(suggest):
         
         'close_time': close_time,
         'closed': suggest.closed,
-        'views': suggest.views,
-        'org_id':suggest.org_id,
-        'org': '' if gg is None else gg.title,
-        'send_mail': suggest.send_mail,
-        'email': suggest.email,
-        'mail_time':mail_time
+        'views': suggest.views
     }
     return data_dict
 
@@ -183,9 +165,6 @@ def _undictize_suggest_basic(suggest, data_dict):
     suggest.user_id = data_dict['user_id']
     suggest.dataset_name = data_dict['dataset_name']
     suggest.suggest_columns = data_dict['suggest_columns']
-    suggest.org_id = data_dict['org_id']
-    suggest.email = data_dict['email']
-    #suggest.mail_time = data_tict['mail_time']
     
 def suggest_show(context, data_dict):
     model = context['model']
@@ -220,50 +199,11 @@ def suggest_show(context, data_dict):
 
     data_dict['comments'] = comments_list
     return data_dict    
-
-def get_domail_content(context, params):
-    model = context['model']
-    suggest_id = params.get('id', '')
-    log.info("Suggest_action_get_domail_content: " + suggest_id)
-    if not suggest_id:
-        raise tk.ValidationError('Data Request ID has not been included')
-
-    # Init the data base
-    db.init_db(model)
-    # Get the data request
-    db_suggests = db.Suggest.get(id=suggest_id)
-    if not db_suggests:
-        raise tk.ObjectNotFound('Data Request %s not found in the data base' % suggest_id)
-    suggest = db_suggests[0]
-
-    gg = model.Session.query(model.Group).filter(model.Group.id == suggest.org_id).first()
-
-    # Convert the data request into a dict
-    mail_content = {
-        'id': suggest.id,
-        'user_name': suggest.user_id,
-        'title': suggest.title,
-        'description': suggest.description,
-        'dataset_name': suggest.dataset_name,
-        'suggest_columns': suggest.suggest_columns,
-        'open_time': suggest.open_time,
-        'org_id':suggest.org_id,
-        'org': '' if gg is None else gg.title,
-        'send_mail': suggest.send_mail,
-        'email': suggest.email
-    }
-    return mail_content
     
 def suggest_views(context, data_dict):
     model = context['model']
     suggest_id = data_dict.get('id', '')
     db.Suggest.views_plus(suggest_id)
-
-def suggest_mailed(context, data_dict):
-    model = context['model']
-    suggest_id = data_dict.get('id', '')
-    
-    db.Suggest.suggest_mailed(suggest_id)
 
 
 def suggest_comment(context, data_dict):

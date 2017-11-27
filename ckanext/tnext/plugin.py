@@ -4,6 +4,7 @@ import ckan.plugins.toolkit as toolkit
 import action as a
 import constants
 import auth
+from ckanext.tnext import helpers
 
 log = logging.getLogger(__name__)
 
@@ -53,6 +54,7 @@ class TnextPlugin(plugins.SingletonPlugin):
             # constants.SUGGEST_COMMENT_SHOW: a.suggest_comment_show,
             # constants.SUGGEST_COMMENT_UPDATE: a.suggest_comment_update,
             # constants.SUGGEST_COMMENT_DELETE: a.suggest_comment_delete
+            'get_domail_content': a.get_domail_content
         }
 
     ######################################################################
@@ -111,15 +113,23 @@ class TnextPlugin(plugins.SingletonPlugin):
 
         map.connect('home_show','/show', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='show')
+        
         map.connect('home_specification','/specification', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='specification')
+        map.connect('home_specification_old','/specification_old',
+            controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='specification_old')
+
         map.connect('home_guide','/guide', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='guide')
         map.connect('home_faq','/faq', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='faq')
         map.connect('home_manual','/manual', 
             controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='manual')
-  
+        map.connect('home_privacy','/privacy',
+            controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='privacy')
+        map.connect('home_webdataopen','/webdataopen',
+            controller = 'ckanext.tnext.controllers.TnStats:TnStatsController', action='webdataopen')
+
         ## suggests ##
         # Data Requests index
         map.connect('suggests_index', "/suggest",
@@ -149,5 +159,6 @@ class TnextPlugin(plugins.SingletonPlugin):
 
     def get_helpers(self):
         return {
-            'tnexthots': tnext_hots
+            'tnexthots': tnext_hots,
+            'get_org_list': helpers.get_org_list
         } 

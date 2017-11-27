@@ -26,7 +26,7 @@
     </section>
   {% else %}
     <p class="empty">
-      {{ _('There are currently no Data Requests for this site') }}.
+      {{ '目前尚無任何資料建議!' }}
       {# % if h.check_access('datarequest_create') %}
         {% link_for _('How about creating one?'), controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='new' %}</a>.
       {% endif %#}

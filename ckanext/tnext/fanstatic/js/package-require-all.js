@@ -7,6 +7,7 @@
 
 
     $(document).ready(function (){
+
       $('button[name=save]').click(function(){
         //console.log($(this).val());
         for(var i in checkAddId){
@@ -17,6 +18,10 @@
             return false;
           }
         }
+	if($('#field-extras-11').val()==='000'){
+          alert('請選擇[服務分類]!');
+	  return false;
+	}
         return true;
       });
     });

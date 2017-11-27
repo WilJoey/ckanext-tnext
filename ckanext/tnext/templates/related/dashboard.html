@@ -45,12 +45,9 @@
 
 {% block secondary_content %}
   <section class="module module-narrow module-shallow">
-    <h2 class="module-heading">{{ _('What are applications?') }}</h2>
+    <h2 class="module-heading">創新應用</h2>
     <div class="module-content">
-      {% trans %}
-        These are applications built with the datasets as well as ideas for
-        things that could be done with them.
-      {% endtrans %}
+      為達成創造臺南開放資料活化加值與推廣之效，本府規劃展示府內及使用者利用本平台開放資料所開發之應用，經本府審核即可於本平台展示。
     </div>
   </section>
 
@@ -75,6 +72,16 @@
           <option value="">{{ _('Default') }}</option>
           {% for option in c.sort_options %}
             <option value="{{ option.value }}"{% if c.filters.sort == option.value %} selected="selected"{% endif %}>{{ option.text or option.value }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="field-dataset">以資料集來過濾</label>
+        <select id="field-dataset" name="dataset">
+          <option value="">所有</option>
+          {% for option in c.dataset_options %}
+            <option value="{{ option.value }}"{% if c.filters.dataset == option.value %} selected="selected"{% endif %}>{{ option.text or option.value }}</option>
           {% endfor %}
         </select>
       </div>
